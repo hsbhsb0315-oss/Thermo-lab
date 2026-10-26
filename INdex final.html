@@ -1,0 +1,1111 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THERMO LAB | AI Data Center Cooling</title>
+
+<style>
+:root {
+  --bg:#0b1020;
+  --panel:#131b2e;
+  --panel2:#19243a;
+  --text:#edf2ff;
+  --muted:#a7b4cc;
+  --accent:#62d9c3;
+  --blue:#82aaff;
+  --orange:#ffbd69;
+  --red:#ff7474;
+  --border:#2c3953;
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,"Malgun Gothic",sans-serif;
+  line-height:1.65;
+}
+header,footer {
+  background:#0e1628;
+  padding:28px 20px;
+}
+header { border-bottom:1px solid var(--border); }
+.header-inner,main,.footer-inner {
+  max-width:1100px;
+  margin:auto;
+}
+.logo {
+  color:var(--accent);
+  font-size:13px;
+  font-weight:bold;
+  letter-spacing:3px;
+}
+h1 {
+  font-size:clamp(28px,4vw,43px);
+  line-height:1.25;
+  margin:12px 0;
+}
+h2 { font-size:24px; margin-top:0; }
+h3 { font-size:17px; margin-top:22px; }
+p,li { color:var(--muted); }
+nav {
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  margin-top:20px;
+}
+nav a {
+  color:var(--muted);
+  text-decoration:none;
+  font-size:13px;
+}
+nav a:hover,a { color:var(--accent); }
+main { padding:28px 20px 55px; }
+section {
+  margin-bottom:30px;
+  scroll-margin-top:18px;
+}
+.panel {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:23px;
+  margin-bottom:18px;
+}
+.grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:15px;
+}
+.grid3 {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+.metric {
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:17px;
+  min-width:0;
+}
+.name,.small {
+  color:var(--muted);
+  font-size:12px;
+}
+.value {
+  font-size:27px;
+  font-weight:bold;
+  margin:7px 0;
+  overflow-wrap:anywhere;
+}
+.tag {
+  display:inline-block;
+  color:var(--accent);
+  border:1px solid #30675e;
+  border-radius:20px;
+  padding:3px 9px;
+  font-size:12px;
+}
+.equation {
+  background:#0b1221;
+  color:var(--accent);
+  border-radius:9px;
+  padding:14px;
+  margin:12px 0;
+  text-align:center;
+  font-family:"Courier New",monospace;
+  overflow-wrap:anywhere;
+}
+.warning {
+  background:#30271b;
+  border:1px solid #69502b;
+  border-radius:10px;
+  padding:14px 16px;
+  color:#ffe0ad;
+  margin:14px 0;
+}
+.info {
+  background:#112a30;
+  border:1px solid #286056;
+  border-radius:10px;
+  padding:14px 16px;
+  margin:14px 0;
+}
+label {
+  display:block;
+  font-size:14px;
+  margin-bottom:8px;
+}
+input[type=range] {
+  width:100%;
+  accent-color:var(--accent);
+}
+.control { margin:17px 0 23px; }
+.control-head {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+}
+.control-head strong { color:var(--accent); }
+button {
+  border:0;
+  border-radius:9px;
+  padding:12px 16px;
+  cursor:pointer;
+  background:var(--accent);
+  color:#09201c;
+  font-weight:bold;
+}
+button.secondary {
+  background:#263550;
+  color:var(--text);
+}
+button:hover { filter:brightness(1.08); }
+.button-row {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:15px;
+}
+.table-wrap { overflow-x:auto; }
+table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+th,td {
+  text-align:left;
+  padding:11px 9px;
+  border-bottom:1px solid var(--border);
+  vertical-align:top;
+}
+th { color:var(--accent); }
+.good { color:var(--accent); }
+.bad { color:var(--red); }
+.bar-row { margin:14px 0; }
+.bar-head {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size:13px;
+  margin-bottom:6px;
+}
+.bar-track {
+  height:10px;
+  background:#26334b;
+  border-radius:20px;
+  overflow:hidden;
+}
+.bar {
+  height:100%;
+  background:var(--accent);
+  border-radius:20px;
+  transition:width .2s;
+}
+.strategy-card {
+  border:1px solid var(--border);
+  background:var(--panel2);
+  border-radius:12px;
+  padding:16px;
+}
+.strategy-card h3 { margin-top:0; }
+.strategy-card .value { font-size:23px; }
+.status-pill {
+  display:inline-block;
+  border-radius:20px;
+  padding:3px 9px;
+  font-size:12px;
+  margin-top:4px;
+}
+.status-ok {
+  color:var(--accent);
+  border:1px solid #30675e;
+}
+.status-fail {
+  color:var(--red);
+  border:1px solid #713d49;
+}
+footer { border-top:1px solid var(--border); }
+footer li { margin-bottom:14px; }
+footer a { overflow-wrap:anywhere; }
+@media(max-width:700px) {
+  .grid,.grid3 { grid-template-columns:1fr; }
+  .panel { padding:17px; }
+  th,td { min-width:110px; }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="header-inner">
+    <div class="logo">THERMO LAB / ENGINEERING SIMULATION</div>
+    <h1>AI 데이터센터의<br>최적 냉각 전략 탐색</h1>
+    <p>
+      열역학적 에너지 수지와 냉각 전력 모델을 이용해
+      부품 온도를 관리하면서 냉각 에너지를 줄이는 방법을 탐색합니다.
+    </p>
+    <nav>
+      <a href="#problem">문제 정의</a>
+      <a href="#theory">이론</a>
+      <a href="#model">입력값</a>
+      <a href="#simulation">시뮬레이션</a>
+      <a href="#comparison">전략 비교</a>
+      <a href="#optimization">최적화 결과</a>
+      <a href="#interpretation">주의사항</a>
+      <a href="#sources">자료 출처</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section id="problem">
+  <div class="panel">
+    <span class="tag">RESEARCH QUESTION</span>
+    <h2 style="margin-top:15px;">어느 부품을 집중 냉각해야 할까?</h2>
+    <p>
+      GPU, CPU, 메모리 등에서 발생하는 열을 제거하려면 냉각 에너지가 필요하다.
+      모든 부품을 강하게 냉각하면 전력 소비가 커질 수 있고,
+      냉각이 부족하면 부품 온도가 허용 범위를 초과할 수 있다.
+    </p>
+    <div class="equation">목표: 총 냉각 전력 최소화</div>
+    <div class="equation">제약 조건: 각 부품 온도 ≤ 설정된 온도 제한</div>
+    <p>
+      이 프로젝트에서는 부품별 냉각 강도를 조절하고,
+      균등 냉각·GPU 집중 냉각·최적화 냉각 전략을 비교한다.
+    </p>
+    <div class="warning">
+      이 모델은 열적 과부하를 관리하는 문제를 다룬다.
+      전력 공급 장치의 전기적 과부하나 서버의 전력 용량을 직접 계산하는 모델은 아니다.
+    </div>
+  </div>
+</section>
+
+<section id="theory">
+  <div class="panel">
+    <h2>1. 열역학적 이론</h2>
+
+    <h3>① 에너지 수지</h3>
+    <p>제어 체적 내부의 에너지 축적 속도는 유입 에너지와 유출 에너지의 차이로 표현된다.</p>
+    <div class="equation">dU/dt = Q̇_in − Q̇_out</div>
+    <p>정상상태에서는 에너지 축적이 없으므로 발생한 열은 장기적으로 냉각 시스템을 통해 제거되어야 한다.</p>
+    <div class="equation">정상상태: dU/dt = 0</div>
+
+    <h3>② 열전달 관계</h3>
+    <p>단순화된 모델에서는 열전달량이 유효 열전달 성능과 부품 및 냉각 공기의 온도 차이에 영향을 받는다.</p>
+    <div class="equation">Q̇ = UA(T_component − T_air)</div>
+    <div class="equation">T_component = T_air + Q̇ / UA</div>
+    <p class="small">
+      U는 종합 열전달계수, A는 유효 열전달 면적이다.
+      이 모델에서는 UA를 실측하지 않고 냉각 강도에 따라 달라지는 가상의 유효 열전달 성능으로 표현한다.
+    </p>
+
+    <h3>③ 냉동기 성능계수 COP</h3>
+    <div class="equation">COP = Q̇_removed / P_chiller</div>
+    <div class="equation">P_chiller = Q̇_removed / COP</div>
+    <p>
+      COP가 높으면 같은 열 제거량에 필요한 냉동기 전력이 줄어든다.
+      실제 COP는 외기 온도, 냉각수 온도, 부분 부하 등 운전 조건에 따라 달라질 수 있다.
+    </p>
+  </div>
+</section>
+
+<section id="model">
+  <div class="panel">
+    <h2>2. 모델 입력값 및 근거</h2>
+    <p>공식 자료에서 참고한 값과 교육용 가정값을 구분한다.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>초기값</th><th>근거</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GPU 열부하 입력</td><td>350 W</td>
+            <td>NVIDIA H100 PCIe의 최대 TDP를 참고한 예시. 실제 소비전력 및 발열량은 작업 부하에 따라 달라질 수 있다.</td>
+          </tr>
+          <tr>
+            <td>CPU 열부하 입력</td><td>150 W</td>
+            <td>특정 CPU 모델의 공식 사양이 아닌 가정값.</td>
+          </tr>
+          <tr>
+            <td>메모리 열부하 입력</td><td>80 W</td>
+            <td>특정 메모리 구성의 실측값이 아닌 가정값.</td>
+          </tr>
+          <tr>
+            <td>온도 제한</td><td>GPU 85°C, CPU 80°C, 메모리 75°C</td>
+            <td>시뮬레이션용 가정값. 특정 제품의 공식 허용 온도를 의미하지 않는다.</td>
+          </tr>
+          <tr>
+            <td>공급 공기 온도</td><td>25°C</td>
+            <td>초기 설정값. 실제 운전 시에는 환경과 장비 제조사 기준을 확인해야 한다.</td>
+          </tr>
+          <tr>
+            <td>유효 열전달 성능</td><td>UA = 2 + 0.25 × 냉각 강도</td>
+            <td>실측값으로 보정되지 않은 교육용 관계식.</td>
+          </tr>
+          <tr>
+            <td>팬·공기 이동 전력 상한</td><td>GPU 100 W, CPU 45 W, 메모리 20 W</td>
+            <td>계산 예시를 위한 가정값.</td>
+          </tr>
+          <tr>
+            <td>냉동기 COP</td><td>4.0</td>
+            <td>시나리오 입력값. 특정 냉동기의 실측 성능이 아니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warning">
+      현재 모델은 실제 열전달계수나 팬 성능 곡선을 측정해 보정한 모델이 아니다.
+      결과는 입력값과 가정에 의존한다.
+    </div>
+  </div>
+</section>
+
+<section id="simulation">
+  <div class="panel">
+    <h2>3. 냉각 시뮬레이션</h2>
+    <p>슬라이더로 부품별 냉각 강도, 공급 공기 온도, 냉동기 COP를 조절한다.</p>
+
+    <div class="grid">
+      <div class="metric">
+        <div class="control">
+          <div class="control-head">
+            <label for="gpuStrength">GPU 냉각 강도</label>
+            <strong id="gpuStrengthValue">50%</strong>
+          </div>
+          <input id="gpuStrength" type="range" min="0" max="100" value="50">
+        </div>
+        <div class="control">
+          <div class="control-head">
+            <label for="cpuStrength">CPU 냉각 강도</label>
+            <strong id="cpuStrengthValue">50%</strong>
+          </div>
+          <input id="cpuStrength" type="range" min="0" max="100" value="50">
+        </div>
+        <div class="control" style="margin-bottom:0">
+          <div class="control-head">
+            <label for="memStrength">메모리 냉각 강도</label>
+            <strong id="memStrengthValue">50%</strong>
+          </div>
+          <input id="memStrength" type="range" min="0" max="100" value="50">
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="control">
+          <div class="control-head">
+            <label for="airTemp">공급 공기 온도</label>
+            <strong id="airTempValue">25°C</strong>
+          </div>
+          <input id="airTemp" type="range" min="15" max="35" step="1" value="25">
+          <p class="small">실내 공급 공기 온도의 가정값</p>
+        </div>
+        <div class="control">
+          <div class="control-head">
+            <label for="cop">냉동기 COP</label>
+            <strong id="copValue">4.0</strong>
+          </div>
+          <input id="cop" type="range" min="2" max="8" step="0.5" value="4">
+          <p class="small">제거 열량 ÷ 냉동기 소비 전력</p>
+        </div>
+        <div class="button-row">
+          <button id="resetBtn" class="secondary" type="button">초기값 복원</button>
+          <button id="optimizeBtn" type="button">최소 전력 조합 적용</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>부품별 온도 및 제한 확인</h2>
+    <div class="grid3">
+      <div class="metric">
+        <div class="name">GPU 온도</div><div class="value" id="gpuTemp">—</div>
+        <div id="gpuStatus" class="small">—</div><div class="small">제한값: 85°C (가정)</div>
+      </div>
+      <div class="metric">
+        <div class="name">CPU 온도</div><div class="value" id="cpuTemp">—</div>
+        <div id="cpuStatus" class="small">—</div><div class="small">제한값: 80°C (가정)</div>
+      </div>
+      <div class="metric">
+        <div class="name">메모리 온도</div><div class="value" id="memTemp">—</div>
+        <div id="memStatus" class="small">—</div><div class="small">제한값: 75°C (가정)</div>
+      </div>
+    </div>
+    <h3>온도 제한 대비 현황</h3>
+    <div id="temperatureBars"></div>
+  </div>
+
+  <div class="panel">
+    <h2>냉각 전력 분석</h2>
+    <div class="grid">
+      <div class="metric">
+        <div class="name">총 IT 열부하</div><div class="value" id="heatLoad">580 W</div>
+        <div class="small">GPU + CPU + 메모리 열부하 합계</div>
+      </div>
+      <div class="metric">
+        <div class="name">냉동기 전력</div><div class="value" id="chillerPower">—</div>
+        <div class="small">총 열부하 ÷ COP</div>
+      </div>
+      <div class="metric">
+        <div class="name">팬·공기 이동 전력 추정치</div><div class="value" id="fanPower">—</div>
+        <div class="small">부품별 가상 전력식의 합</div>
+      </div>
+      <div class="metric">
+        <div class="name">모델상 총 냉각 전력</div><div class="value" id="totalPower">—</div>
+        <div class="small">냉동기 전력 + 팬·공기 이동 전력 추정치</div>
+      </div>
+    </div>
+    <h3>전력 구성</h3>
+    <div id="powerBars"></div>
+    <p class="small">
+      실제 시설의 펌프, 냉각탑, 공조기, 열교환기 및 제어 장치의 전력은 별도 자료가 필요하다.
+    </p>
+  </div>
+</section>
+
+<section id="comparison">
+  <div class="panel">
+    <span class="tag">STRATEGY COMPARISON</span>
+    <h2 style="margin-top:15px;">4. 냉각 전략별 비교</h2>
+    <p>
+      같은 열부하, 공급 공기 온도, COP 조건에서 세 가지 냉각 전략을 비교한다.
+      비교를 실행해 전략별 온도 제한 충족 여부와 모델상 냉각 전력을 확인한다.
+    </p>
+
+    <div class="grid3">
+      <div class="strategy-card">
+        <h3>전략 A · 균등 냉각</h3>
+        <p class="small">GPU·CPU·메모리에 동일한 냉각 강도를 적용한다.</p>
+      </div>
+      <div class="strategy-card">
+        <h3>전략 B · GPU 집중</h3>
+        <p class="small">GPU 강도를 CPU와 메모리보다 각각 최소 20%p 높게 설정한다.</p>
+      </div>
+      <div class="strategy-card">
+        <h3>전략 C · 최적화</h3>
+        <p class="small">사전 전략 조건 없이 온도 제한을 만족하는 최소 전력 조합을 탐색한다.</p>
+      </div>
+    </div>
+
+    <div class="button-row">
+      <button id="compareBtn" type="button">세 전략 비교하기</button>
+    </div>
+
+    <div id="comparisonIntro" class="info" style="margin-top:18px;">
+      비교 버튼을 누르면 현재 공급 공기 온도와 COP 조건을 기준으로 세 전략을 계산한다.
+    </div>
+
+    <div class="table-wrap" style="margin-top:18px;">
+      <table>
+        <thead>
+          <tr>
+            <th>비교 항목</th>
+            <th>균등 냉각</th>
+            <th>GPU 집중</th>
+            <th>최적화 냉각</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GPU 냉각 강도</td><td id="cmpEqualGpu">—</td><td id="cmpGpuGpu">—</td><td id="cmpOptGpu">—</td>
+          </tr>
+          <tr>
+            <td>CPU 냉각 강도</td><td id="cmpEqualCpu">—</td><td id="cmpGpuCpu">—</td><td id="cmpOptCpu">—</td>
+          </tr>
+          <tr>
+            <td>메모리 냉각 강도</td><td id="cmpEqualMem">—</td><td id="cmpGpuMem">—</td><td id="cmpOptMem">—</td>
+          </tr>
+          <tr>
+            <td>GPU 온도</td><td id="cmpEqualTgpu">—</td><td id="cmpGpuTgpu">—</td><td id="cmpOptTgpu">—</td>
+          </tr>
+          <tr>
+            <td>CPU 온도</td><td id="cmpEqualTcpu">—</td><td id="cmpGpuTcpu">—</td><td id="cmpOptTcpu">—</td>
+          </tr>
+          <tr>
+            <td>메모리 온도</td><td id="cmpEqualTmem">—</td><td id="cmpGpuTmem">—</td><td id="cmpOptTmem">—</td>
+          </tr>
+          <tr>
+            <td>팬·공기 이동 전력</td><td id="cmpEqualFan">—</td><td id="cmpGpuFan">—</td><td id="cmpOptFan">—</td>
+          </tr>
+          <tr>
+            <td>냉동기 전력</td><td id="cmpEqualChiller">—</td><td id="cmpGpuChiller">—</td><td id="cmpOptChiller">—</td>
+          </tr>
+          <tr>
+            <td><strong>모델상 총 냉각 전력</strong></td>
+            <td id="cmpEqualTotal">—</td><td id="cmpGpuTotal">—</td><td id="cmpOptTotal">—</td>
+          </tr>
+          <tr>
+            <td>온도 제한</td><td id="cmpEqualSafe">—</td><td id="cmpGpuSafe">—</td><td id="cmpOptSafe">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>전략별 모델상 총 냉각 전력</h3>
+    <div id="comparisonBars"></div>
+
+    <div id="comparisonConclusion" class="info">
+      비교 결과를 실행하면 해석이 여기에 표시된다.
+    </div>
+    <p class="small">
+      비교 결과는 이 페이지에 정의된 가정식과 탐색 범위 안에서만 유효하다.
+      실제 설비의 성능 순위를 보장하지 않는다.
+    </p>
+  </div>
+</section>
+
+<section id="optimization">
+  <div class="panel">
+    <h2>5. 최적화 결과</h2>
+    <p>
+      프로그램은 GPU·CPU·메모리 냉각 강도를 각각 0~100% 범위에서 5% 간격으로 탐색한다.
+      세 부품의 온도 제한을 만족하는 조합 중 모델상 총 냉각 전력이 가장 낮은 조합을 표시한다.
+    </p>
+    <div class="grid">
+      <div class="metric">
+        <div class="name">최적화 상태</div>
+        <div class="value" id="optStatus" style="font-size:21px">아직 실행하지 않음</div>
+        <div class="small" id="optMessage">버튼을 눌러 최적화하세요.</div>
+      </div>
+      <div class="metric">
+        <div class="name">최적 조합의 모델상 총 냉각 전력</div>
+        <div class="value" id="optPower">—</div>
+        <div class="small" id="optSavings">현재 설정과 비교한 전력 차이: —</div>
+      </div>
+    </div>
+    <div class="table-wrap" style="margin-top:20px;">
+      <table>
+        <thead><tr><th>항목</th><th>GPU</th><th>CPU</th><th>메모리</th></tr></thead>
+        <tbody>
+          <tr><td>최적 냉각 강도</td><td id="bestGpu">—</td><td id="bestCpu">—</td><td id="bestMem">—</td></tr>
+          <tr><td>최적 조합의 온도</td><td id="bestGpuTemp">—</td><td id="bestCpuTemp">—</td><td id="bestMemTemp">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">
+      최적화 버튼은 최적화 전략을 계산한 뒤 시뮬레이션의 GPU·CPU·메모리 슬라이더에 해당 조합을 적용한다.
+    </p>
+  </div>
+</section>
+
+<section id="interpretation">
+  <div class="panel">
+    <span class="tag">IMPORTANT NOTES</span>
+    <h2 style="margin-top:15px;">6. 결과 해석 시 반드시 알아둘 점</h2>
+
+    <h3>① 총 IT 열부하는 580 W로 고정되어 있다</h3>
+    <div class="equation">Q̇_IT = 350 + 150 + 80 = 580 W</div>
+    <p>
+      GPU·CPU·메모리의 열부하가 시뮬레이션 중 변하지 않는다고 가정한다.
+      따라서 냉각 강도를 바꾸더라도 전체적으로 제거해야 하는 열량은 580 W로 유지된다.
+      실제 AI 서버에서는 작업 부하와 장비 소비전력에 따라 열부하가 달라진다.
+    </p>
+
+    <h3>② COP가 고정되어 있으면 냉동기 전력도 고정된다</h3>
+    <div class="equation">P_chiller = 580 W / COP</div>
+    <p>
+      COP가 4라면 냉동기 전력은 145 W로 계산된다.
+      현재 모델에서는 COP와 총 열부하가 일정하므로 전략별 냉동기 전력은 같다.
+      전략 사이의 전력 차이는 주로 팬·공기 이동 전력의 차이에서 발생한다.
+      실제 설비에서는 운전 조건에 따라 COP가 변할 수 있지만, 현재 코드는 그 관계를 자동으로 계산하지 않는다.
+    </p>
+
+    <h3>③ GPU의 350 W는 모든 GPU에 적용되는 값이 아니다</h3>
+    <p>
+      350 W는 NVIDIA H100 PCIe 모델의 최대 TDP를 참고한 예시다.
+      실제 운전 중 소비전력이나 발열량이 항상 350 W라는 뜻은 아니다.
+      CPU 150 W와 메모리 80 W 역시 특정 제품에서 측정한 값이 아닌 가정값이다.
+    </p>
+
+    <h3>④ 부품 온도 제한과 공급 공기 온도는 서로 다른 기준이다</h3>
+    <p>
+      공급 공기 온도는 서버로 들어가는 냉각 공기의 온도이며, GPU·CPU·메모리 온도와 같지 않다.
+      이 페이지의 GPU 85°C, CPU 80°C, 메모리 75°C는 실습용 가정값이다.
+      실제 허용 온도는 장비 제조사의 사양을 확인해야 한다.
+    </p>
+
+    <h3>⑤ 팬·공기 이동 전력은 실측값이 아닌 근사값이다</h3>
+    <div class="equation">P_fan = P_max × (냉각 강도 / 100)³</div>
+    <p>
+      이 식은 냉각 강도에 따라 전력이 비선형적으로 증가하는 상황을 표현하기 위한 가정식이다.
+      실제 팬 전력은 팬 회전 속도, 공기 유량, 정압, 시스템 저항 등에 따라 달라진다.
+    </p>
+
+    <h3>⑥ 모델상 총 냉각 전력은 시설 전체의 실측 전력이 아니다</h3>
+    <div class="equation">P_cooling,model = P_chiller + P_fan</div>
+    <p>
+      현재 계산은 냉동기 전력과 가정된 팬·공기 이동 전력만 합산한다.
+      실제 시설 전체의 냉각 전력을 평가하려면 펌프, 냉각탑, 공조기, 열교환기, 제어 장치 등도 고려해야 한다.
+      IT 장비 자체의 전력은 이 냉각 전력 합계에 포함하지 않는다.
+    </p>
+
+    <h3>⑦ 최적화 결과는 설정한 모델 안에서의 최적값이다</h3>
+    <p>
+      최적화는 냉각 강도를 5% 간격으로 탐색한다.
+      따라서 이 결과는 탐색한 조합 중 가장 좋은 결과이며,
+      모든 연속적인 냉각 강도에서의 정확한 전역 최적해를 보장하지 않는다.
+      모델 가정이 실제와 다르면 실제 설비의 최적 운전점과 달라질 수 있다.
+    </p>
+
+    <h3>⑧ 냉각 전략 비교는 정해진 조건 안에서 이루어진다</h3>
+    <p>
+      균등 냉각은 세 부품의 냉각 강도를 같게 설정한다.
+      GPU 집중 냉각은 GPU 강도를 CPU와 메모리보다 각각 최소 20%p 높게 설정한다.
+      최적화 냉각은 이러한 전략별 제약 없이 가능한 조합을 탐색한다.
+      이 정의는 비교를 위한 모델상의 규칙이며 실제 데이터센터의 표준 운전 전략을 의미하지 않는다.
+    </p>
+
+    <div class="warning">
+      <strong>핵심 결론:</strong>
+      이 시뮬레이션은 열역학적 원리와 냉각 배분 개념을 이해하기 위한 교육용 근사 모델이다.
+      실제 데이터센터의 냉각 전력이나 안전성을 확정적으로 예측하는 도구가 아니다.
+      현실적인 예측을 위해서는 실제 제품 사양, 온도 측정값, 팬 성능 곡선, 냉동기 성능 데이터로 모델을 보정하고 검증해야 한다.
+    </div>
+  </div>
+</section>
+</main>
+
+<footer id="sources">
+  <div class="footer-inner">
+    <h2>7. 데이터 및 참고 자료 출처</h2>
+    <p>
+      아래 자료는 물리적 배경과 일부 초기 입력값을 설정하는 데 참고했다.
+      공식 자료에서 확인한 내용과 교육용 가정값을 구분한다.
+    </p>
+    <ol>
+      <li>
+        <strong>NVIDIA — H100 Tensor Core GPU Datasheet</strong><br>
+        H100 GPU 제품 사양을 참고했다. 이 페이지에서는 H100 PCIe의 최대 TDP 350 W를 GPU 열부하의 예시 입력값으로 사용한다. 실제 운전 중 소비전력 및 발열량은 작업 부하와 시스템 조건에 따라 달라질 수 있다.<br>
+        <a href="https://resources.nvidia.com/en-us-hopper-architecture/nvidia-tensor-core-gpu-datasheet" target="_blank" rel="noopener noreferrer">NVIDIA 공식 자료 열기</a>
+      </li>
+      <li>
+        <strong>ASHRAE Handbook — Data Centers and Telecommunication Facilities</strong><br>
+        데이터센터 장비의 입구 공기 온도와 열관리 원리를 참고했다. 본 페이지의 GPU·CPU·메모리 온도 제한값이 ASHRAE에서 직접 가져온 값이라는 의미는 아니다.<br>
+        <a href="https://handbook.ashrae.org/Handbooks/A23/SI/A23_Ch20/a23_ch20_si.aspx" target="_blank" rel="noopener noreferrer">ASHRAE 자료 열기</a>
+      </li>
+      <li>
+        <strong>U.S. Department of Energy — Cooling Water Efficiency Opportunities for Federal Data Centers</strong><br>
+        데이터센터 냉각 설비와 냉각 에너지 효율을 이해하기 위한 참고 자료다. 이 자료가 본 페이지의 COP 4.0이나 팬 전력 곡선을 제공하는 것은 아니다.<br>
+        <a href="https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers" target="_blank" rel="noopener noreferrer">미국 에너지부 자료 열기</a>
+      </li>
+    </ol>
+
+    <h3>모델 가정 및 계산 방식</h3>
+    <ul>
+      <li>GPU 350 W, CPU 150 W, 메모리 80 W를 초기 열부하로 설정했다. CPU 및 메모리 값은 가정값이다.</li>
+      <li>GPU 85°C, CPU 80°C, 메모리 75°C는 예시 온도 제한이며 특정 장비의 공식 제한값으로 간주하면 안 된다.</li>
+      <li>유효 열전달 성능은 UA = 2 + 0.25 × 냉각 강도로 정의했다. 실측 데이터에 맞춰 보정되지 않은 식이다.</li>
+      <li>팬·공기 이동 전력은 각 부품의 가정된 최대 전력에 냉각 강도 비율의 세제곱을 곱해 근사했다.</li>
+      <li>냉동기 전력은 총 IT 열부하를 설정된 COP로 나누어 계산했다. 정상상태에서 입력된 IT 열부하 전부가 냉각 시스템에 의해 제거된다고 가정한다.</li>
+      <li>최적화는 냉각 강도를 5% 단위로 탐색한다.</li>
+      <li>GPU 집중 전략은 GPU 강도를 CPU 및 메모리 강도보다 각각 최소 20%p 높게 제한하여 비교한다.</li>
+    </ul>
+    <p class="small">
+      본 페이지는 교육 및 개념 검토용 단순화 시뮬레이션이다.
+      실제 장비 선정, 안전성 판단, 시설 전력 예측에는 제조사 사양과 실측 데이터에 기반한 검증이 필요하다.
+    </p>
+  </div>
+</footer>
+
+<script>
+const components = [
+  {id:"gpu", name:"GPU", heat:350, limit:85, maxFan:100},
+  {id:"cpu", name:"CPU", heat:150, limit:80, maxFan:45},
+  {id:"mem", name:"메모리", heat:80, limit:75, maxFan:20}
+];
+
+const $ = id => document.getElementById(id);
+
+function getInputs() {
+  return {
+    gpu:Number($("gpuStrength").value),
+    cpu:Number($("cpuStrength").value),
+    mem:Number($("memStrength").value),
+    air:Number($("airTemp").value),
+    cop:Number($("cop").value)
+  };
+}
+
+function calculate(strength, air, cop) {
+  const results = {};
+  let fanPower = 0;
+  let totalHeat = 0;
+  let allSafe = true;
+
+  for (const c of components) {
+    const s = strength[c.id];
+    const UA = 2 + 0.25 * s;
+    const temp = air + c.heat / UA;
+    const localFanPower = c.maxFan * Math.pow(s / 100, 3);
+    const safe = temp <= c.limit;
+
+    if (!safe) allSafe = false;
+
+    results[c.id] = {
+      temp, safe, UA,
+      fanPower:localFanPower,
+      margin:c.limit-temp
+    };
+
+    fanPower += localFanPower;
+    totalHeat += c.heat;
+  }
+
+  const chillerPower = totalHeat / cop;
+
+  return {
+    results,
+    fanPower,
+    chillerPower,
+    totalPower:fanPower+chillerPower,
+    totalHeat,
+    allSafe
+  };
+}
+
+function searchBest(air, cop, predicate = () => true) {
+  let best = null;
+
+  for (let gpu=0; gpu<=100; gpu+=5) {
+    for (let cpu=0; cpu<=100; cpu+=5) {
+      for (let mem=0; mem<=100; mem+=5) {
+        const strengths = {gpu,cpu,mem};
+        if (!predicate(strengths)) continue;
+
+        const data = calculate(strengths,air,cop);
+        if (!data.allSafe) continue;
+
+        if (!best || data.totalPower < best.data.totalPower) {
+          best = {strengths,data};
+        }
+      }
+    }
+  }
+
+  return best;
+}
+
+function renderBars(data) {
+  $("temperatureBars").innerHTML = components.map(c => {
+    const r = data.results[c.id];
+    const ratio = Math.max(0,Math.min(100,r.temp/c.limit*100));
+    const color = r.safe ? "var(--accent)" : "var(--red)";
+
+    return `<div class="bar-row">
+      <div class="bar-head">
+        <span>${c.name}</span>
+        <span>${r.temp.toFixed(1)}°C / ${c.limit}°C</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar" style="width:${ratio}%;background:${color}"></div>
+      </div>
+    </div>`;
+  }).join("");
+
+  const max = Math.max(data.totalPower,1);
+
+  $("powerBars").innerHTML = [
+    ["냉동기",data.chillerPower],
+    ["팬·공기 이동",data.fanPower]
+  ].map(([name,value]) => `<div class="bar-row">
+    <div class="bar-head">
+      <span>${name}</span>
+      <span>${value.toFixed(1)} W</span>
+    </div>
+    <div class="bar-track">
+      <div class="bar" style="width:${Math.min(100,value/max*100)}%"></div>
+    </div>
+  </div>`).join("");
+}
+
+function render() {
+  const i = getInputs();
+  const d = calculate(
+    {gpu:i.gpu,cpu:i.cpu,mem:i.mem},
+    i.air,
+    i.cop
+  );
+
+  $("gpuStrengthValue").textContent = i.gpu+"%";
+  $("cpuStrengthValue").textContent = i.cpu+"%";
+  $("memStrengthValue").textContent = i.mem+"%";
+  $("airTempValue").textContent = i.air+"°C";
+  $("copValue").textContent = i.cop.toFixed(1);
+
+  for (const c of components) {
+    const r = d.results[c.id];
+    $(c.id+"Temp").textContent = r.temp.toFixed(1)+"°C";
+    $(c.id+"Status").textContent =
+      r.safe ? "온도 제한 만족" : "온도 제한 초과";
+    $(c.id+"Status").className =
+      r.safe ? "small good" : "small bad";
+  }
+
+  $("heatLoad").textContent = d.totalHeat.toFixed(0)+" W";
+  $("chillerPower").textContent = d.chillerPower.toFixed(1)+" W";
+  $("fanPower").textContent = d.fanPower.toFixed(1)+" W";
+  $("totalPower").textContent = d.totalPower.toFixed(1)+" W";
+
+  renderBars(d);
+}
+
+function applyBestToSliders(best) {
+  $("gpuStrength").value = best.strengths.gpu;
+  $("cpuStrength").value = best.strengths.cpu;
+  $("memStrength").value = best.strengths.mem;
+  render();
+}
+
+function optimize() {
+  const i = getInputs();
+  const best = searchBest(i.air,i.cop);
+
+  if (!best) {
+    $("optStatus").textContent = "가능한 조합 없음";
+    $("optMessage").textContent =
+      "현재 조건에서 온도 제한을 만족하는 조합을 찾지 못했습니다.";
+    $("optPower").textContent = "—";
+    $("optSavings").textContent =
+      "공급 공기 온도 또는 모델 입력값을 확인하세요.";
+    return;
+  }
+
+  const current = calculate(
+    {gpu:i.gpu,cpu:i.cpu,mem:i.mem},i.air,i.cop
+  );
+
+  $("optStatus").textContent = "조건 만족 조합 발견";
+  $("optMessage").textContent =
+    "온도 제한을 만족하는 조합 중 5% 간격 탐색에서 전력이 가장 낮은 결과입니다.";
+  $("optPower").textContent = best.data.totalPower.toFixed(1)+" W";
+
+  const delta = current.totalPower-best.data.totalPower;
+  $("optSavings").textContent = delta >= 0
+    ? "현재 설정 대비 "+delta.toFixed(1)+" W 절감"
+    : "현재 설정이 "+Math.abs(delta).toFixed(1)+" W 더 낮은 전력입니다.";
+
+  $("bestGpu").textContent = best.strengths.gpu+"%";
+  $("bestCpu").textContent = best.strengths.cpu+"%";
+  $("bestMem").textContent = best.strengths.mem+"%";
+  $("bestGpuTemp").textContent = best.data.results.gpu.temp.toFixed(1)+"°C";
+  $("bestCpuTemp").textContent = best.data.results.cpu.temp.toFixed(1)+"°C";
+  $("bestMemTemp").textContent = best.data.results.mem.temp.toFixed(1)+"°C";
+
+  applyBestToSliders(best);
+}
+
+function strategyResult(strengths,air,cop) {
+  return {
+    strengths,
+    data:calculate(strengths,air,cop)
+  };
+}
+
+function compareStrategies() {
+  const i = getInputs();
+
+  // 전략 A: 세 부품에 같은 냉각 강도를 적용
+  let equalBest = null;
+  for (let s=0;s<=100;s+=5) {
+    const result = strategyResult(
+      {gpu:s,cpu:s,mem:s},i.air,i.cop
+    );
+    if (!result.data.allSafe) continue;
+    if (!equalBest || result.data.totalPower < equalBest.data.totalPower) {
+      equalBest = result;
+    }
+  }
+
+  // 전략 B: GPU 강도가 CPU와 메모리보다 각각 20%p 이상 높아야 함
+  const gpuFocusedBest = searchBest(
+    i.air,
+    i.cop,
+    s => s.gpu >= s.cpu+20 && s.gpu >= s.mem+20
+  );
+
+  // 전략 C: 별도 냉각 배분 조건 없이 최소 전력 탐색
+  const optimizedBest = searchBest(i.air,i.cop);
+
+  const strategies = [
+    {key:"Equal",label:"균등 냉각",result:equalBest},
+    {key:"Gpu",label:"GPU 집중",result:gpuFocusedBest},
+    {key:"Opt",label:"최적화 냉각",result:optimizedBest}
+  ];
+
+  const suffixes = {
+    Equal:{
+      gpu:"Gpu",cpu:"Cpu",mem:"Mem",
+      Tgpu:"Tgpu",Tcpu:"Tcpu",Tmem:"Tmem",
+      fan:"Fan",chiller:"Chiller",total:"Total",safe:"Safe"
+    },
+    Gpu:{
+      gpu:"Gpu",cpu:"Cpu",mem:"Mem",
+      Tgpu:"Tgpu",Tcpu:"Tcpu",Tmem:"Tmem",
+      fan:"Fan",chiller:"Chiller",total:"Total",safe:"Safe"
+    },
+    Opt:{
+      gpu:"Gpu",cpu:"Cpu",mem:"Mem",
+      Tgpu:"Tgpu",Tcpu:"Tcpu",Tmem:"Tmem",
+      fan:"Fan",chiller:"Chiller",total:"Total",safe:"Safe"
+    }
+  };
+
+  const fieldPrefix = {
+    Equal:"cmpEqual",
+    Gpu:"cmpGpu",
+    Opt:"cmpOpt"
+  };
+
+  for (const s of strategies) {
+    const prefix = fieldPrefix[s.key];
+    const r = s.result;
+
+    const fields = ["gpu","cpu","mem","Tgpu","Tcpu","Tmem","fan","chiller","total","safe"];
+
+    if (!r) {
+      for (const field of fields) {
+        const suffix = suffixes[s.key][field];
+        $(""+prefix+suffix).textContent =
+          field === "safe" ? "조건 만족 조합 없음" : "—";
+      }
+      continue;
+    }
+
+    const d = r.data;
+    const st = r.strengths;
+
+    $(""+prefix+"Gpu").textContent = st.gpu+"%";
+    $(""+prefix+"Cpu").textContent = st.cpu+"%";
+    $(""+prefix+"Mem").textContent = st.mem+"%";
+
+    $(""+prefix+"Tgpu").textContent = d.results.gpu.temp.toFixed(1)+"°C";
+    $(""+prefix+"Tcpu").textContent = d.results.cpu.temp.toFixed(1)+"°C";
+    $(""+prefix+"Tmem").textContent = d.results.mem.temp.toFixed(1)+"°C";
+
+    $(""+prefix+"Fan").textContent = d.fanPower.toFixed(1)+" W";
+    $(""+prefix+"Chiller").textContent = d.chillerPower.toFixed(1)+" W";
+    $(""+prefix+"Total").textContent = d.totalPower.toFixed(1)+" W";
+
+    $(""+prefix+"Safe").textContent =
+      d.allSafe ? "모든 제한 만족" : "제한 초과";
+    $(""+prefix+"Safe").className =
+      d.allSafe ? "good" : "bad";
+  }
+
+  const valid = strategies.filter(s => s.result);
+
+  if (valid.length === 0) {
+    $("comparisonIntro").textContent =
+      "현재 조건에서 온도 제한을 만족하는 전략을 찾지 못했습니다.";
+    $("comparisonBars").innerHTML = "";
+    $("comparisonConclusion").textContent =
+      "공급 공기 온도나 입력 조건을 확인하세요.";
+    return;
+  }
+
+  const maxPower = Math.max(...valid.map(s => s.result.data.totalPower),1);
+
+  $("comparisonBars").innerHTML = strategies.map(s => {
+    if (!s.result) {
+      return `<div class="bar-row">
+        <div class="bar-head"><span>${s.label}</span><span>가능한 조합 없음</span></div>
+      </div>`;
+    }
+    const p = s.result.data.totalPower;
+    const width = p/maxPower*100;
+    return `<div class="bar-row">
+      <div class="bar-head"><span>${s.label}</span><span>${p.toFixed(1)} W</span></div>
+      <div class="bar-track">
+        <div class="bar" style="width:${width}%"></div>
+      </div>
+    </div>`;
+  }).join("");
+
+  const opt = optimizedBest;
+  const lowest = valid.reduce((a,b) =>
+    a.result.data.totalPower <= b.result.data.totalPower ? a : b
+  );
+
+  $("comparisonIntro").textContent =
+    `비교 조건: 공급 공기 ${i.air}°C, COP ${i.cop.toFixed(1)}, 총 IT 열부하 580 W. `+
+    `모든 전략에 같은 조건을 적용했습니다.`;
+
+  if (opt && equalBest && gpuFocusedBest) {
+    const eqP = equalBest.data.totalPower;
+    const gpuP = gpuFocusedBest.data.totalPower;
+    const optP = optimizedBest.data.totalPower;
+    const eqSaving = eqP-optP;
+    const gpuSaving = gpuP-optP;
+
+    $("comparisonConclusion").innerHTML =
+      `<strong>결과 해석</strong><br>`+
+      `이 모델에서는 최적화 냉각의 총 냉각 전력이 ${optP.toFixed(1)} W로 계산되었습니다. `+
+      `균등 냉각은 ${eqP.toFixed(1)} W, GPU 집중 냉각은 ${gpuP.toFixed(1)} W입니다.<br>`+
+      `최적화 냉각과 비교하면 균등 냉각의 전력 차이는 ${eqSaving.toFixed(1)} W, `+
+      `GPU 집중 냉각의 전력 차이는 ${gpuSaving.toFixed(1)} W입니다. `+
+      `이 차이는 설정된 팬 전력식과 온도 제한에 따른 모델 결과이며, 실제 시설의 성능 차이를 의미하지는 않습니다.`;
+  } else {
+    $("comparisonConclusion").textContent =
+      `현재 조건에서 가장 낮은 모델상 총 냉각 전력을 보이는 전략은 ${lowest.label}입니다. `+
+      `단, 비교할 전략 중 일부는 온도 제한을 만족하는 조합을 찾지 못했습니다.`;
+  }
+}
+
+["gpuStrength","cpuStrength","memStrength","airTemp","cop"]
+  .forEach(id => $(id).addEventListener("input",render));
+
+$("optimizeBtn").addEventListener("click",optimize);
+$("compareBtn").addEventListener("click",compareStrategies);
+
+$("resetBtn").addEventListener("click",() => {
+  $("gpuStrength").value = 50;
+  $("cpuStrength").value = 50;
+  $("memStrength").value = 50;
+  $("airTemp").value = 25;
+  $("cop").value = 4;
+
+  $("optStatus").textContent = "아직 실행하지 않음";
+  $("optMessage").textContent = "버튼을 눌러 최적화하세요.";
+  $("optPower").textContent = "—";
+  $("optSavings").textContent = "현재 설정과 비교한 전력 차이: —";
+
+  [
+    "bestGpu","bestCpu","bestMem",
+    "bestGpuTemp","bestCpuTemp","bestMemTemp"
+  ].forEach(id => $(id).textContent="—");
+
+  render();
+
+  $("comparisonIntro").textContent =
+    "비교 버튼을 누르면 현재 공급 공기 온도와 COP 조건을 기준으로 세 전략을 계산한다.";
+  $("comparisonConclusion").textContent =
+    "비교 결과를 실행하면 해석이 여기에 표시된다.";
+  $("comparisonBars").innerHTML = "";
+
+  [
+    "cmpEqualGpu","cmpEqualCpu","cmpEqualMem",
+    "cmpGpuGpu","cmpGpuCpu","cmpGpuMem",
+    "cmpOptGpu","cmpOptCpu","cmpOptMem",
+    "cmpEqualTgpu","cmpEqualTcpu","cmpEqualTmem",
+    "cmpGpuTgpu","cmpGpuTcpu","cmpGpuTmem",
+    "cmpOptTgpu","cmpOptTcpu","cmpOptTmem",
+    "cmpEqualFan","cmpGpuFan","cmpOptFan",
+    "cmpEqualChiller","cmpGpuChiller","cmpOptChiller",
+    "cmpEqualTotal","cmpGpuTotal","cmpOptTotal",
+    "cmpEqualSafe","cmpGpuSafe","cmpOptSafe"
+  ].forEach(id => {
+    $(id).textContent = "—";
+    $(id).className = "";
+  });
+});
+
+render();
+</script>
+</body>
+</html>
